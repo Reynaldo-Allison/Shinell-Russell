@@ -91,7 +91,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const key=s=>s.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
 /* ====== PASTE YOUR SUPABASE DETAILS HERE (Project Settings > API) ====== */
-const SUPABASE_URL='bpvkamjurvkgzkevsrib';
+const SUPABASE_URL='https://bpvkamjurvkgzkevsrib.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdmthbWp1cnZrZ3prZXZzcmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNTE2MTUsImV4cCI6MjEwNjcyNzYxNX0.kiz1SRUNFrQ2T8dX1PUT77jyIBrHNBQa4RhCX23cC7A';
 /* ======================================================================= */
 let B=null,cur=null,S={},ROWS=[],token=null;
