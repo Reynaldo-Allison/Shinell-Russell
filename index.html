@@ -95,7 +95,7 @@ const SUPABASE_URL='https://bpvkamjurvkgzkevsrib.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdmthbWp1cnZrZ3prZXZzcmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNTE2MTUsImV4cCI6MjEwNjcyNzYxNX0.kiz1SRUNFrQ2T8dX1PUT77jyIBrHNBQa4RhCX23cC7A';
 /* ======================================================================= */
 let B=null,cur=null,S={},ROWS=[],token=null;
-const rpc=async(fn,args,jwt)=>{const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+(jwt||SUPABASE_ANON_KEY)},body:JSON.stringify(args)});if(!r.ok){let t='';try{t=await r.text()}catch(_){}throw new Error(r.status+' '+t)}return r.json()};
+const rpc=async(fn,args,jwt)=>{const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+(jwt||SUPABASE_ANON_KEY)},body:JSON.stringify(args)});if(!r.ok)throw new Error(r.status);return r.json()};
 const SB={
  async search(q){return (await rpc('search_households',{q})).map(x=>({id:x.id,name:x.name,side:x.side,num:x.num,count:x.n_members}))},
  get:id=>rpc('get_household',{hid:id}),
@@ -127,8 +127,7 @@ $('nameIn').addEventListener('input',async()=>{
  h.querySelectorAll('.hit').forEach(e=>e.onclick=()=>openForm(e.dataset.id))});
 
 async function openForm(id){
- let d;try{d=await B.get(id)}catch(e){$('hits').style.display='none';$('form').style.display='block';$('form').innerHTML='<div class="card"><p class="err">Sorry, we could not load this invitation. Please try again or contact us.</p></div>';console.error('get_household failed',e);return}
- if(!d)return;cur=d;S={};$('hits').style.display='none';$('rsvpMsg').textContent='';
+ const d=await B.get(id);if(!d)return;cur=d;S={};$('hits').style.display='none';$('rsvpMsg').textContent='';
  const R=(d.rsvp&&d.rsvp.responses)||{};
  d.persons.forEach(p=>{const r=R[p.id]||{};S[p.id]={on:!!r.attending,dietary:r.dietary||'',mode:r.mode||'onsite',pn:r.plus_name||'',pd:r.plus_dietary||'',pm:r.plus_mode||'onsite'}});
  $('form').style.display='block';
@@ -152,7 +151,6 @@ async function save(){
  try{await B.save(cur.id,resp);m.className='msg ok';
   m.textContent=n?`Thank you! We've saved your RSVP for ${n} guest${n>1?'s':''}. Livestream details will be shared closer to the date.`:'Thank you for letting us know. You will be missed, and you are welcome to watch the livestream.';
   $('form').style.display='none';if(token)loadAdmin()}
- catch(e){m.className='msg err';const f=/ONSITE_FULL:(\d+)/.exec(e&&e.message||'');
-  m.textContent=f?(+f[1]>0?`Sorry, only ${f[1]} on-site seat${+f[1]>1?'s':''} remain${+f[1]>1?'':'s'}. Please change some guests to Virtual (livestream) and try again. We want you to be apart of our special day. Your attendance whether in person or online is important to us!`:'Oops , it seems we have reached the Venue’s capacity of 80 onsite guest. Please select our livestream RSVP option so that you can still be apart of our special day. Your attendance whether in person or online is important to us!'):'Could not save your RSVP. Please try again.'}}
+ catch(e){m.className='msg err';m.textContent='Could not save your RSVP. Please try again.'}}
 
 </script></body></html>
