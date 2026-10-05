@@ -129,24 +129,25 @@ $('nameIn').addEventListener('input',async()=>{
 async function openForm(id){
  const d=await B.get(id);if(!d)return;cur=d;S={};$('hits').style.display='none';$('rsvpMsg').textContent='';
  const R=(d.rsvp&&d.rsvp.responses)||{};
- d.persons.forEach(p=>{const r=R[p.id]||{};S[p.id]={on:!!r.attending,dietary:r.dietary||'',pn:r.plus_name||'',pd:r.plus_dietary||''}});
+ d.persons.forEach(p=>{const r=R[p.id]||{};S[p.id]={on:!!r.attending,dietary:r.dietary||'',mode:r.mode||'onsite',pn:r.plus_name||'',pd:r.plus_dietary||'',pm:r.plus_mode||'onsite'}});
  $('form').style.display='block';
  $('form').innerHTML=`<div class="card"><h3>Welcome, ${esc(d.name)}</h3><p>${d.persons.length} invited. ${d.rsvp?'<span class="badge">Already responded · you can update</span>':''}</p>
- <label>Who will be attending?</label><details class="dd" id="dd"><summary id="ddS"></summary><div>${d.persons.map(p=>`<label class="chk"><input type="checkbox" class="pc" value="${p.id}" ${S[p.id].on?'checked':''}> ${esc(p.name)}${p.mode==='virtual'?' <em>(virtual)</em>':''}</label>`).join('')}</div></details>
+ <label>Who will be attending?</label><details class="dd" id="dd"><summary id="ddS"></summary><div>${d.persons.map(p=>`<label class="chk"><input type="checkbox" class="pc" value="${p.id}" ${S[p.id].on?'checked':''}> ${esc(p.name)}</label>`).join('')}</div></details>
  <div id="people"></div><button id="save">Send RSVP</button> <button class="ghost" id="cancel">Not me</button></div>`;
  document.querySelectorAll('.pc').forEach(c=>c.onchange=()=>{snap();S[c.value].on=c.checked;draw()});
  $('cancel').onclick=()=>{$('form').style.display='none';$('nameIn').value=''};$('save').onclick=save;draw();
 }
-function snap(){document.querySelectorAll('.pcard').forEach(c=>{const s=S[c.dataset.id];s.dietary=c.querySelector('.d').value;if(c.querySelector('.pn')){s.pn=c.querySelector('.pn').value;s.pd=c.querySelector('.pd').value}})}
+function snap(){document.querySelectorAll('.pcard').forEach(c=>{const s=S[c.dataset.id];s.dietary=c.querySelector('.d').value;s.mode=c.querySelector('.m').value;if(c.querySelector('.pn')){s.pn=c.querySelector('.pn').value;s.pd=c.querySelector('.pd').value;s.pm=c.querySelector('.pm').value}})}
 function draw(){
  const sel=cur.persons.filter(p=>S[p.id].on);
  $('ddS').textContent=sel.length?`${sel.length} of ${cur.persons.length} attending: ${sel.map(p=>p.name.split(' ')[0]).join(', ')}`:'Select who will attend';
- $('people').innerHTML=sel.map(p=>{const s=S[p.id];return `<div class="pcard" data-id="${p.id}"><b>${esc(p.name)}</b>${p.mode==='virtual'?' <span class="badge v">Virtual · livestream</span>':''}
+ $('people').innerHTML=sel.map(p=>{const s=S[p.id];return `<div class="pcard" data-id="${p.id}"><b>${esc(p.name)}</b>
+ <label>How will you attend?</label><select class="m"><option value="onsite"${s.mode!=='virtual'?' selected':''}>On-site (in person)</option><option value="virtual"${s.mode==='virtual'?' selected':''}>Virtual (livestream)</option></select>
  <label>Dietary restrictions / allergies</label><input class="d" placeholder="None" value="${esc(s.dietary)}">
- ${p.plus_one?`<label>Plus one's full name (optional)</label><input class="pn" value="${esc(s.pn)}"><label>Plus one's dietary restrictions</label><input class="pd" placeholder="None" value="${esc(s.pd)}">`:''}</div>`}).join('')}
+ ${p.plus_one?`<label>Plus one's full name (optional)</label><input class="pn" value="${esc(s.pn)}"><label>Plus one's attendance</label><select class="pm"><option value="onsite"${s.pm!=='virtual'?' selected':''}>On-site (in person)</option><option value="virtual"${s.pm==='virtual'?' selected':''}>Virtual (livestream)</option></select><label>Plus one's dietary restrictions</label><input class="pd" placeholder="None" value="${esc(s.pd)}">`:''}</div>`}).join('')}
 async function save(){
  snap();const m=$('rsvpMsg'),resp={};let n=0;
- cur.persons.forEach(p=>{const s=S[p.id];if(s.on)n++;resp[p.id]={attending:s.on,dietary:s.on?s.dietary.trim():'',plus_name:s.on&&p.plus_one?s.pn.trim():'',plus_dietary:s.on&&p.plus_one?s.pd.trim():''};if(resp[p.id].plus_name)n++});
+ cur.persons.forEach(p=>{const s=S[p.id];if(s.on)n++;resp[p.id]={attending:s.on,dietary:s.on?s.dietary.trim():'',mode:s.on?s.mode:'onsite',plus_mode:s.on&&p.plus_one?s.pm:'onsite',plus_name:s.on&&p.plus_one?s.pn.trim():'',plus_dietary:s.on&&p.plus_one?s.pd.trim():''};if(resp[p.id].plus_name)n++});
  try{await B.save(cur.id,resp);m.className='msg ok';
   m.textContent=n?`Thank you! We've saved your RSVP for ${n} guest${n>1?'s':''}. Livestream details will be shared closer to the date.`:'Thank you for letting us know. You will be missed, and you are welcome to watch the livestream.';
   $('form').style.display='none';if(token)loadAdmin()}
