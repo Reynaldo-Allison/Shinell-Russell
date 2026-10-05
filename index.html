@@ -91,8 +91,8 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const key=s=>s.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
 /* ====== PASTE YOUR SUPABASE DETAILS HERE (Project Settings > API) ====== */
-const SUPABASE_URL='https://YOUR-PROJECT-ID.supabase.co';
-const SUPABASE_ANON_KEY='YOUR-ANON-PUBLIC-KEY';
+const SUPABASE_URL='bpvkamjurvkgzkevsrib';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdmthbWp1cnZrZ3prZXZzcmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNTE2MTUsImV4cCI6MjEwNjcyNzYxNX0.kiz1SRUNFrQ2T8dX1PUT77jyIBrHNBQa4RhCX23cC7A';
 /* ======================================================================= */
 let B=null,cur=null,S={},ROWS=[],token=null;
 const rpc=async(fn,args,jwt)=>{const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+(jwt||SUPABASE_ANON_KEY)},body:JSON.stringify(args)});if(!r.ok)throw new Error(r.status);return r.json()};
